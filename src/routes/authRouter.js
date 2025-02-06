@@ -117,7 +117,15 @@ authRouter.put(
 
 async function setAuth(user) {
   const token = jwt.sign(user, config.jwtSecret);
-  await DB.loginUser(user.id, token);
+  try {
+    await DB.loginUser(user.id, token);
+  } catch (err) {
+    if (err.code === 'ER_DUP_ENTRY' && err.message.includes('auth.PRIMARY')) {
+      console.warn("duplicate auth token used, caught error and continuing")
+    } else {
+      throw err
+    }
+  }
   return token;
 }
 
