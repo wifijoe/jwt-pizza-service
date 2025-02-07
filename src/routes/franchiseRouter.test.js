@@ -18,15 +18,16 @@ beforeAll(async () => {
 });
 
 test('create franchise', async () => {
-    testFranchise = createFranchise()
+    testFranchise = createFranchise(adminUserFranchise)
     const testFranchiseCreateRequest = await request(app)
         .post('/api/franchise')
         .set('Authorization', `Bearer ${adminUserAuthToken}`)
         .send(testFranchise);
-        console.log(testFranchiseCreateRequest);
     expect(testFranchiseCreateRequest.status).toBe(200);
 
-    let expectedResult = {name: testFranchise.name, admins: [{ email: 'f@jwt.com', id: 3, name: 'pizza franchisee' }], id: /^[0-9]*\.$/}
+    let expectedResult = {name: testFranchise.name, admins: [{  email: adminUserFranchise.email, 
+                                                                id: adminUserFranchise.id, 
+                                                                name: adminUserFranchise.name }], id: expect.any(Number)}
     expect(testFranchiseCreateRequest.body).toMatchObject(expectedResult)
     testFranchiseId = testFranchiseCreateRequest.body.id
 });
@@ -37,7 +38,6 @@ test('create store', async () => {
         .post(`/api/franchise/${testFranchiseId}/store`)
         .set('Authorization', `Bearer ${adminUserAuthToken}`)
         .send(testStore);
-    console.log(testStoreCreateRequest);
     expect(testStoreCreateRequest.status).toBe(200);
 
     const expectedResult = {id: expect.any(Number), name: testStore.name};
@@ -93,8 +93,8 @@ function createStore(franchiseId) {
     return newStore;
 }
 
-function createFranchise() {
-    const newFranchise = {name: "pizzaPocket", admins: [{email: "f@jwt.com"}]};
+function createFranchise(admin) {
+    const newFranchise = {name: "pizzaPocket", admins: [{email: admin.email}]};
     newFranchise.name = Math.random().toString(36).substring(2, 12);
     return newFranchise;
 }

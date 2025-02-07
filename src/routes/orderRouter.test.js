@@ -14,7 +14,7 @@ let testFranchiseId;
 beforeAll(async () => {
     adminUserOrder = await createAdminUser();
     testUser = createUser();
-    testFranchise = createFranchise();
+    testFranchise = createFranchise(adminUserOrder);
     testStore = createStore();
 
     const loginRes = await request(app).put('/api/auth').send({email: adminUserOrder.email, password: adminUserOrder.password});
@@ -29,7 +29,6 @@ beforeAll(async () => {
     testUserAuthToken = RegisterRes.body.token;
     expectValidJwt(testUserAuthToken);
 
-    testFranchise = createFranchise()
     const testFranchiseCreateRequest = await request(app)
         .post('/api/franchise')
         .set('Authorization', `Bearer ${adminUserAuthToken}`)
@@ -103,8 +102,8 @@ function createStore(franchiseId) {
     return newStore;
 }
 
-function createFranchise() {
-    const newFranchise = {name: "pizzaPocket", admins: [{email: "f@jwt.com"}]};
+function createFranchise(admin) {
+    const newFranchise = {name: "pizzaPocket", admins: [{email: admin.email}]};
     newFranchise.name = Math.random().toString(36).substring(2, 12);
     return newFranchise;
 }
