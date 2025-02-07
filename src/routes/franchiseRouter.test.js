@@ -1,5 +1,6 @@
 const request = require('supertest');
 const app = require('../service');
+const { Role, DB } = require('../database/database.js');
 
 let testFranchise;
 let testStore;
@@ -8,8 +9,8 @@ let testStoreId;
 let testFranchiseId;
 
 beforeAll(async () => {
-    const adminUser = {email: "a@jwt.com", password: "admin"};
-    const loginRes = await request(app).put('/api/auth').send(adminUser);
+    const adminUser = await createAdminUser();
+    const loginRes = await request(app).put('/api/auth').send({email: adminUser.email, password: adminUser.password});
     expect(loginRes.status).toBe(200);
     adminUserAuthToken = loginRes.body.token;
     expectValidJwt(adminUserAuthToken);
@@ -93,4 +94,13 @@ function createFranchise() {
     const newFranchise = {name: "pizzaPocket", admins: [{email: "f@jwt.com"}]};
     newFranchise.name = Math.random().toString(36).substring(2, 12);
     return newFranchise;
+}
+
+async function createAdminUser() {
+    let user = { password: 'toomanysecrets', roles: [{ role: Role.Admin }] };
+    user.name = Math.random().toString(36).substring(2, 12);
+    user.email = user.name + '@admin.com';
+
+    user = await DB.addUser(user);
+    return { ...user, password: 'toomanysecrets' };
 }

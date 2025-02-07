@@ -1,5 +1,6 @@
 const request = require('supertest');
 const app = require('../service');
+const { Role, DB } = require('../database/database.js');
 
 const testUser = { name: 'pizza diner', email: 'reg@test.com', password: 'a' };
 let testUserAuthToken;
@@ -84,8 +85,7 @@ test('logout', async () => {
 });
 
 test('update User', async () => {
-  const adminUser = {id: 1, email: "a@jwt.com", password: "admin", roles: [{role: 'admin'}]};
-
+  const adminUser = await createAdminUser();
   const adminLoginRequest = await request(app)
     .put('/api/auth')
     .send(adminUser);
@@ -94,7 +94,7 @@ test('update User', async () => {
 
   const adminToken = adminLoginRequest.body.token
   const updateUserResponse = await request(app)
-    .put(`/api/auth/1`)
+    .put(`/api/auth/${adminUser.id}`)
     .set('Authorization', `Bearer ${adminToken}`)
     .send(adminUser);
   expect(updateUserResponse.status).toBe(200);
@@ -114,4 +114,13 @@ function createUser() {
   const newUser = { name: 'pizza diner', email: 'reg@test.com', password: 'a' };
   newUser.email = Math.random().toString(36).substring(2, 12) + '@test.com';
   return newUser
+}
+
+async function createAdminUser() {
+  let user = { password: 'toomanysecrets', roles: [{ role: Role.Admin }] };
+  user.name = Math.random().toString(36).substring(2, 12);
+  user.email = user.name + '@admin.com';
+
+  user = await DB.addUser(user);
+  return { ...user, password: 'toomanysecrets' };
 }
