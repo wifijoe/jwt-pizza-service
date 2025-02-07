@@ -121,7 +121,7 @@ async function setAuth(user) {
     await DB.loginUser(user.id, token);
   } catch (err) {
     if (err.code === 'ER_DUP_ENTRY' && err.message.includes('auth.PRIMARY')) {
-      console.warn("duplicate auth token used, caught error and continuing")
+      //console.warn("duplicate auth token used, caught error and continuing")
     } else {
       throw err
     }
