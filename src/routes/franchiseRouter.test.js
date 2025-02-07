@@ -53,15 +53,9 @@ test('list all franchises', async () => {
 });
 
 test('get franchise page', async () => {
-    const franchiseUser = {email: 'f@jwt.com', password: 'franchisee'}
-    const loginFranchisee = await request(app).put('/api/auth').send(franchiseUser);
-    expect(loginFranchisee.status).toBe(200);
-    const franchiseeAuth = loginFranchisee.body.token;
-    expectValidJwt(franchiseeAuth);
-
     const getFranchisePageResponse = await request(app)
         .get(`/api/franchise/3`)
-        .set('Authorization', `Bearer ${franchiseeAuth}`);
+        .set('Authorization', `Bearer ${adminUserAuthToken}`);
     expect(getFranchisePageResponse.status).toBe(200);
 
     expect(getFranchisePageResponse.body).toMatchObject(expect.any(Array));
