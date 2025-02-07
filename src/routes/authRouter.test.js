@@ -83,6 +83,28 @@ test('logout', async () => {
   expect(logoutResponse.body.message).toBe('logout successful');
 });
 
+test('update User', async () => {
+  const adminUser = {id: 1, email: "a@jwt.com", password: "admin", roles: [{role: 'admin'}]};
+
+  const adminLoginRequest = await request(app)
+    .put('/api/auth')
+    .send(adminUser);
+  expect(adminLoginRequest.status).toBe(200);
+  expectValidJwt(adminLoginRequest.body.token);
+
+  const adminToken = adminLoginRequest.body.token
+  const updateUserResponse = await request(app)
+    .put(`/api/auth/1`)
+    .set('Authorization', `Bearer ${adminToken}`)
+    .send(adminUser);
+  expect(updateUserResponse.status).toBe(200);
+  delete adminUser.password;
+  expect(updateUserResponse.body).toMatchObject(adminUser);
+
+  await request(app)
+    .delete('/api/auth')
+    .set('Authorization', `Bearer ${adminToken}`);
+});
 
 function expectValidJwt(potentialJwt) {
   expect(potentialJwt).toMatch(/^[a-zA-Z0-9\-_]*\.[a-zA-Z0-9\-_]*\.[a-zA-Z0-9\-_]*$/);
