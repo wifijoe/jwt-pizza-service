@@ -21,7 +21,6 @@ beforeAll(async () => {
     adminUserAuthToken = loginRes.body.token;
     expectValidJwt(adminUserAuthToken);
 
-    const registerTestUser = createUser()
     const RegisterRes = await request(app)
     .post('/api/auth')
     .send(testUser);

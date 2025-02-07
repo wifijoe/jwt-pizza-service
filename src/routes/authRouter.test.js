@@ -57,7 +57,7 @@ test('double login', async () => {
   delete expectedUser.password;
   expect(loginRes.body.user).toMatchObject(expectedUser);
 
-  secondLoginRequest = await request(app)
+  const secondLoginRequest = await request(app)
   .put('/api/auth')
   .send(testUser);
   expect(secondLoginRequest.status).toBe(200);

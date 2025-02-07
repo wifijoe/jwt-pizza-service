@@ -37,7 +37,7 @@ test('create store', async () => {
         .send(testStore);
     expect(testStoreCreateRequest.status).toBe(200);
 
-    expectedResult = {id: expect.any(Number), name: testStore.name};
+    const expectedResult = {id: expect.any(Number), name: testStore.name};
     expect(testStoreCreateRequest.body).toMatchObject(expectedResult);
     testStoreId = testStoreCreateRequest.body.id;
 });
