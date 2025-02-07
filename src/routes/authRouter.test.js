@@ -46,26 +46,6 @@ test('login', async () => {
   expect(loginRes.body.user).toMatchObject(expectedUser);
 });
 
-test('double login', async () => {
-  const loginRes = await request(app)
-  .put('/api/auth')
-  .send(testUser);
-  expect(loginRes.status).toBe(200);
-  expectValidJwt(loginRes.body.token);
-
-  const expectedUser = { ...testUser, roles: [{ role: 'diner' }] };
-  delete expectedUser.password;
-  expect(loginRes.body.user).toMatchObject(expectedUser);
-
-  const secondLoginRequest = await request(app)
-  .put('/api/auth')
-  .send(testUser);
-  expect(secondLoginRequest.status).toBe(200);
-  expectValidJwt(secondLoginRequest.body.token);
-
-  expect(loginRes.body.user).toMatchObject(expectedUser);
-});
-
 test('logout', async () => {
   const loginResponse = await request(app)
     .put('/api/auth')

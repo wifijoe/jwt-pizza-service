@@ -23,6 +23,7 @@ test('create franchise', async () => {
         .post('/api/franchise')
         .set('Authorization', `Bearer ${adminUserAuthToken}`)
         .send(testFranchise);
+        console.log(testFranchiseCreateRequest);
     expect(testFranchiseCreateRequest.status).toBe(200);
 
     let expectedResult = {name: testFranchise.name, admins: [{ email: 'f@jwt.com', id: 3, name: 'pizza franchisee' }], id: /^[0-9]*\.$/}
@@ -36,6 +37,7 @@ test('create store', async () => {
         .post(`/api/franchise/${testFranchiseId}/store`)
         .set('Authorization', `Bearer ${adminUserAuthToken}`)
         .send(testStore);
+    console.log(testStoreCreateRequest);
     expect(testStoreCreateRequest.status).toBe(200);
 
     const expectedResult = {id: expect.any(Number), name: testStore.name};
