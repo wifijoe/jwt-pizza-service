@@ -2,6 +2,7 @@ const request = require('supertest');
 const app = require('../service');
 const { Role, DB } = require('../database/database.js');
 
+let adminUserFranchise;
 let testFranchise;
 let testStore;
 let adminUserAuthToken;
@@ -9,8 +10,8 @@ let testStoreId;
 let testFranchiseId;
 
 beforeAll(async () => {
-    const adminUser = await createAdminUser();
-    const loginRes = await request(app).put('/api/auth').send({email: adminUser.email, password: adminUser.password});
+    adminUserFranchise = await createAdminUser();
+    const loginRes = await request(app).put('/api/auth').send({email: adminUserFranchise.email, password: adminUserFranchise.password});
     expect(loginRes.status).toBe(200);
     adminUserAuthToken = loginRes.body.token;
     expectValidJwt(adminUserAuthToken);
