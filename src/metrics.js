@@ -133,7 +133,7 @@ const timer = setInterval(() => {
         averageLatencyFactory = averageLatencySumFactory / requestCountFactory;
       }
 
-      new_metric = new MetricBuilder();
+      let new_metric = new MetricBuilder();
       new_metric.add_metric('system', getCpuUsagePercentage(), { system: 'CPU' }, '%', 'asDouble', 'gauge');
       new_metric.add_metric('system', getMemoryUsagePercentage(), { system: 'RAM' }, '%', 'asDouble', 'gauge');
       new_metric.add_metric('latency', averageLatency, { latency: 'latency' }, 'ms', 'asDouble', 'sum');
@@ -162,8 +162,6 @@ const timer = setInterval(() => {
     console.log('Error sending metrics', error);
 }
 }, 10000);
-
-console.log("logging timer so it gets pase lint...", timer);
 
 function sendMetricToGrafana(metric) {
   const body = JSON.stringify(metric);
