@@ -4,12 +4,14 @@ const orderRouter = require('./routes/orderRouter.js');
 const franchiseRouter = require('./routes/franchiseRouter.js');
 const version = require('./version.json');
 const config = require('./config.js');
+const { logger } = require('./logger.js');
 
 const app = express();
 app.locals.metrics = require('./metrics.js');
 
 app.use(express.json());
 app.use(setAuthUser);
+app.use(logger.httpLogger);
 app.use(app.locals.metrics.latency);
 app.use(app.locals.metrics.requestsTracker);
 app.use(app.locals.metrics.usersCheck);
