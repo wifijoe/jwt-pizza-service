@@ -1,7 +1,6 @@
 const os = require('os');
 
 const config = require('./config');
-const { captureRejectionSymbol } = require('events');
 
 const requests = {};
 
@@ -83,6 +82,46 @@ function getMemoryUsagePercentage() {
   return memoryUsage.toFixed(2);
 }
 
+class MetricBuilder {
+  constructor() {
+    this.metric = { resourceMetrics: [{ scopeMetrics: [{ metrics: [],},],},],}
+  }
+
+  histogram_data() {
+
+  }
+
+  add_metric(metricName, metricValue, attributes, units, dataPointsType, metricType) {
+    const attribue_list = []
+    Object.keys(attributes).forEach((key) => {
+      attribue_list.push({
+        key: key,
+        value: { stringValue: attributes[key] },
+      });
+    });
+
+    this.metric.resourceMetrics[0].scopeMetrics[0].metrics.push({
+      name: metricName,
+      unit: units,
+      [metricType]: {
+        dataPoints: [
+          {
+            [dataPointsType]: metricValue,
+            timeUnixNano: Date.now() * 1000000,
+            attributes: attribue_list,
+          }
+        ],
+      }
+    });
+    
+    if (metricType == 'sum') {
+      this.metric.resourceMetrics[0].scopeMetrics[0].metrics.at(-1).sum["aggregationTemporality"] = "AGGREGATION_TEMPORALITY_CUMULATIVE";
+      this.metric.resourceMetrics[0].scopeMetrics[0].metrics.at(-1).sum["isMonotonic"] = true;
+    }
+  }
+}
+
+// eslint-disable-next-line no-unused-vars
 const timer = setInterval(() => {
     try {
       let averageLatency = 0;
@@ -119,11 +158,12 @@ const timer = setInterval(() => {
       averageLatencySumFactory = 0;
       requestCount = 0;
       requestCountFactory = 0;
-
 } catch (error) {
     console.log('Error sending metrics', error);
 }
 }, 10000);
+
+console.log("logging timer so it gets pase lint...", timer);
 
 function sendMetricToGrafana(metric) {
   const body = JSON.stringify(metric);
@@ -143,46 +183,6 @@ function sendMetricToGrafana(metric) {
       .catch((error) => {
           console.error('Error pushing metrics:', error);
       });
-}
-
-class MetricBuilder {
-  constructor() {
-    this.metric = { resourceMetrics: [{ scopeMetrics: [{ metrics: [],},],},],}
-  }
-
-  histogram_data() {
-
-  }
-
-  add_metric(metricName, metricValue, attributes, units, dataPointsType, metricType) {
-    const attribue_list = []
-    let data = {}
-    Object.keys(attributes).forEach((key) => {
-      attribue_list.push({
-        key: key,
-        value: { stringValue: attributes[key] },
-      });
-    });
-
-    this.metric.resourceMetrics[0].scopeMetrics[0].metrics.push({
-      name: metricName,
-      unit: units,
-      [metricType]: {
-        dataPoints: [
-          {
-            [dataPointsType]: metricValue,
-            timeUnixNano: Date.now() * 1000000,
-            attributes: attribue_list,
-          }
-        ],
-      }
-    });
-    
-    if (metricType == 'sum') {
-      this.metric.resourceMetrics[0].scopeMetrics[0].metrics.at(-1).sum["aggregationTemporality"] = "AGGREGATION_TEMPORALITY_CUMULATIVE";
-      this.metric.resourceMetrics[0].scopeMetrics[0].metrics.at(-1).sum["isMonotonic"] = true;
-    }
-  }
 }
 
   module.exports = { requestsTracker, latency, usersCheck, factoryLatency };
